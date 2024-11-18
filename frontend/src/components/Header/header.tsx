@@ -57,7 +57,7 @@ const Header: React.FC<HeaderProps> = ({ isScrolled, activeSection }) => {
         }`}
       >
         <Link
-          href="/registration"
+          href="/auth"
           className="Inter rounded-[55px] border-[0.7px] border-white px-5 mobile:px-8 py-3 hover:bg-white hover:text-black transition-all duration-500 font-bold"
         >
           Войти

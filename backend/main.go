@@ -1,42 +1,46 @@
 package main
 
 import (
-	"fmt"
-	"log"
-	"net/http"
-	"os"
+	"time"
 
-	"github.com/gin-gonic/gin"
 	"github.com/Ganeeral/emojify-ai/database"
-	"github.com/Ganeeral/emojify-ai/models"
+	"github.com/Ganeeral/emojify-ai/handlers"
+	"github.com/Ganeeral/emojify-ai/middleware"
+	"github.com/gin-contrib/cors"
+	"github.com/gin-gonic/gin"
 )
 
 func main() {
-	// Подключаемся к базе данных
 	database.ConnectDB()
 
 	r := gin.Default()
+	auth := r.Group("/")
 
-	// Маршрут для регистрации пользователя
-	r.POST("/register", func(c *gin.Context) {
-		var user models.User
-		if err := c.ShouldBindJSON(&user); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-			return
-		}
-		result := database.DB.Create(&user)
-		if result.Error != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error.Error()})
-			return
-		}
-		c.JSON(http.StatusOK, user)
-	})
+	r.Use(cors.New(cors.Config{
+        AllowOrigins:     []string{"*"},
+        AllowMethods:     []string{"POST", "GET", "OPTIONS"},
+        AllowHeaders:     []string{"Content-Type", "Authorization"},
+        ExposeHeaders:    []string{"Content-Length"},
+        AllowCredentials: true,
+        MaxAge:           12 * time.Hour,
+    }))
+	auth.Use(cors.New(cors.Config{
+        AllowOrigins:     []string{"*"},
+        AllowMethods:     []string{"POST", "GET", "OPTIONS"},
+        AllowHeaders:     []string{"Content-Type", "Authorization"},
+        ExposeHeaders:    []string{"Content-Length"},
+        AllowCredentials: true,
+        MaxAge:           12 * time.Hour,
+    }))
 
-	// Запуск сервера
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = "8080"
-	}
-	fmt.Println("Сервер запущен на порту:", port)
-	log.Fatal(r.Run(":" + port))
+    auth.Use(middleware.AuthMiddleware())
+    {
+        auth.GET("/profile", handlers.GetProfile)
+    }
+
+	r.POST("/register", handlers.RegisterUser)
+	r.POST("/login", handlers.Login)
+	r.POST("/analyze", handlers.AnalyzeHandler)
+
+	r.Run(":8080")
 }

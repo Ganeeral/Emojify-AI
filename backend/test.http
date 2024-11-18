@@ -1,0 +1,9 @@
+### Регистрация пользователя
+POST http://localhost:8080/register
+Content-Type: application/json
+
+{
+  "Name": "Roman",
+  "Email": "danil@examples.com",
+  "Password": "password123"
+}

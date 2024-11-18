@@ -47,6 +47,11 @@ const LoginPage: React.FC = () => {
   }, [emailError, passwordError, email, password]);
 
   useEffect(() => {
+    const token = localStorage.getItem("authToken");
+    if (token) {
+      push("/profile");
+    }
+    console.log(token);
     checkFormValidity();
   }, [checkFormValidity]);
 
@@ -67,9 +72,11 @@ const LoginPage: React.FC = () => {
 
         const data = await response.json();
         if (response.ok) {
+          const { token } = data;
+          localStorage.setItem("authToken", token);
           toast.success("Успешный вход! Перенаправление...");
           setTimeout(() => {
-            push("/profile"); // Перенаправить пользователя на защищенную страницу
+            push("/profile");
           }, 1000);
         } else {
           toast.error(data.message || "Ошибка авторизации");
@@ -95,9 +102,7 @@ const LoginPage: React.FC = () => {
 
   return (
     <div className="flex relative justify-center items-center">
-      <div className="absolute clamp-Logo gradientText">
-        Emojify AI
-      </div>
+      <div className="absolute clamp-Logo gradientText">Emojify AI</div>
       <div className="min-w-[300px] my-10 max-w-[670px] w-full flex flex-col gap-y-4 mx-2">
         <div className="rounded-[36px] backgroundAuth p-4 flex flex-col gap-y-8">
           <div className="relative flex justify-center ">

@@ -94,6 +94,10 @@ const RegistrPage: React.FC = () => {
   ]);
 
   useEffect(() => {
+    const token = localStorage.getItem("authToken");
+    if (token) {
+      push("/profile");
+    }
     checkFormValidity();
   }, [checkFormValidity]);
 
@@ -107,7 +111,7 @@ const RegistrPage: React.FC = () => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          name: login, 
+          name: login,
           email: email,
           password,
         }),
@@ -153,8 +157,8 @@ const RegistrPage: React.FC = () => {
         <div className="rounded-[36px] backgroundAuth p-4 flex flex-col gap-y-8">
           <div className="relative flex justify-center ">
             {/* <Link className="mt-3" href="/">
-              <EmojifyIcon />
-            </Link> */}
+                <EmojifyIcon />
+              </Link> */}
             <div className="absolute right-0">
               <Link href="/">
                 <CloseIcon />
