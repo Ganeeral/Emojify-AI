@@ -72,8 +72,10 @@ const LoginPage: React.FC = () => {
 
         const data = await response.json();
         if (response.ok) {
-          const { token } = data;
+          const { token, user } = data;
+          const { ID } = user;
           localStorage.setItem("authToken", token);
+          localStorage.setItem("id", ID);
           toast.success("Успешный вход! Перенаправление...");
           setTimeout(() => {
             push("/profile");

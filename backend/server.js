@@ -8,7 +8,7 @@ app.use(cors());
 app.use(bodyParser.json());
 
 // Инициализация Google Generative AI
-const genAI = new GoogleGenerativeAI("AIzaSyCNXTd8Q583IcEddDWX3BBr95-Bz5kZa2U");
+const genAI = new GoogleGenerativeAI("AIzaSyA0CDlUvoDxQHaodAkPLeWQjZY7-NgjSts");
 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
 app.post("/analyze", async (req, res) => {
@@ -18,10 +18,10 @@ app.post("/analyze", async (req, res) => {
     // Формируем начальное сообщение для модели
     const prompt = `
       Ты — ИИ, который определяет эмоцию по текстовому описанию сцены. Пожалуйста, определи эмоцию сцены одним словом. 
-      Пример: "сцена: Счастливый пес бежит по полю" -> "эмоция: счастье".
+      Пример: "сцена: Счастливый пес бежит по полю" -> "счастье" Использовать можно только эти эмоции: "
+      радость, грусть, гнев, удивление, страх, отвращение, спокойствие, любовь, стыд, скука, разочарование, смущение, раздражение, восхищение, сожаление, благодарность, злость, тоска, обида, уверенность, усталость".
       
       Сцена: ${scene}
-      Эмоция:
     `;
 
     // Отправляем запрос к Google Generative AI

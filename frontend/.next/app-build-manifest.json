@@ -11,10 +11,28 @@
       "static/chunks/main-app.js",
       "static/chunks/app/page.js"
     ],
+    "/emojify/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/css/app/emojify/page.css",
+      "static/chunks/app/emojify/page.js"
+    ],
     "/profile/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/profile/page.js"
+    ],
+    "/auth/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/css/app/auth/page.css",
+      "static/chunks/app/auth/page.js"
+    ],
+    "/registration/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/css/app/registration/page.css",
+      "static/chunks/app/registration/page.js"
     ]
   }
 }

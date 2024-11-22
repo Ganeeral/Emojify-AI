@@ -1,10 +1,11 @@
 package handlers
 
 import (
-    "net/http"
-    "github.com/gin-gonic/gin"
-    "github.com/Ganeeral/emojify-ai/database"
-    "github.com/Ganeeral/emojify-ai/models"
+	"net/http"
+
+	"github.com/Ganeeral/emojify-ai/database"
+	"github.com/Ganeeral/emojify-ai/models"
+	"github.com/gin-gonic/gin"
 )
 
 func GetProfile(c *gin.Context) {
@@ -16,10 +17,17 @@ func GetProfile(c *gin.Context) {
         return
     }
 
+    var requests []models.Request
+    if err := database.DB.Where("user_id = ?", userID).Find(&requests).Error; err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка при получении данных запросов"})
+        return
+    }
+
     c.JSON(http.StatusOK, gin.H{
         "id":        user.ID,
         "name":      user.Name,
         "email":     user.Email,
-        "Avatar": 	 user.Avatar,
+        "avatar":    user.Avatar,
+        "request":  requests,
     })
 }

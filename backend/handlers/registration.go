@@ -8,10 +8,10 @@ import (
 	"golang.org/x/crypto/bcrypt"
 
 	"github.com/Ganeeral/emojify-ai/database"
-	"github.com/Ganeeral/emojify-ai/models" // Импортируем models
+	"github.com/Ganeeral/emojify-ai/models" 
 )
 
-// Регистрация пользователя
+
 func RegisterUser(c *gin.Context) {
 	var input struct {
 		Name     string `json:"name" binding:"required"`
@@ -19,28 +19,25 @@ func RegisterUser(c *gin.Context) {
 		Password string `json:"password" binding:"required,min=6"`
 	}
 
-	// Валидация входных данных
 	if err := c.ShouldBindJSON(&input); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	// Проверка, существует ли уже пользователь с таким email
-	var existingUser models.User // Используем models.User
+
+	var existingUser models.User
 	if err := database.DB.Where("email = ?", input.Email).First(&existingUser).Error; err == nil {
 		c.JSON(http.StatusConflict, gin.H{"error": "Пользователь с таким email уже существует"})
 		return
 	}
 
-	// Хеширование пароля
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(input.Password), bcrypt.DefaultCost)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Не удалось захешировать пароль"})
 		return
 	}
 
-	// Создание нового пользователя
-	newUser := models.User{ // Используем models.User
+	newUser := models.User{
 		Name:             input.Name,
 		Email:			  input.Email,
 		Password:         string(hashedPassword),
@@ -48,7 +45,6 @@ func RegisterUser(c *gin.Context) {
 		RegistrationDate: time.Now(),
 	}
 
-	// Сохранение пользователя в базе данных
 	if err := database.DB.Create(&newUser).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Не удалось создать пользователя"})
 		return

@@ -1,17 +1,27 @@
-"use client";
-
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import axios from "axios";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import EditProfileModal from "@/components/EditProfileModal/EditProfileModal";
+import Image from "next/image";
+import { getImageForEmotion } from "@/utils/emotionGeneration";
+
+
+interface Request {
+  Id: number;
+  Scene: string;
+  Emotion: string;
+}
 
 const ProfileSection = () => {
   const [profile, setProfile] = useState<{
     name: string;
     email: string;
+    avatar: string;
   } | null>(null);
+  const [scenes, setScenes] = useState<Request[]>([]);
+  const [loadingScenes, setLoadingScenes] = useState(true);
+  const [showModal, setShowModal] = useState(false);
   const { push } = useRouter();
 
   const handleLogout = () => {
@@ -19,10 +29,14 @@ const ProfileSection = () => {
     push("/");
   };
 
+  const updateProfileName = (newName: string) => {
+    if (profile) {
+      setProfile({ ...profile, name: newName });
+    }
+  };
+
   useEffect(() => {
     const token = localStorage.getItem("authToken");
-    console.log(`Bearer ${token}`);
-
     axios
       .get("http://localhost:8080/profile", {
         headers: {
@@ -31,6 +45,24 @@ const ProfileSection = () => {
       })
       .then((response) => setProfile(response.data))
       .catch((error) => console.error("Ошибка:", error));
+  }, []);
+
+  useEffect(() => {
+    const token = localStorage.getItem("authToken");
+    axios
+      .get("http://localhost:8080/scenes", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then((response) => {
+        setScenes(response.data);
+        setLoadingScenes(false);
+      })
+      .catch((error) => {
+        console.error("Ошибка:", error);
+        setLoadingScenes(false);
+      });
   }, []);
 
   if (!profile) return <p>Загрузка...</p>;
@@ -46,12 +78,14 @@ const ProfileSection = () => {
             <span className="text-2xl text-[#B0B0B0] Inter font-semibold">
               {profile.name}
             </span>
-            <Link href="/" className="text-[#626262] Inter font-medium text-sm">
+            <button
+              onClick={() => setShowModal(true)}
+              className="text-[#626262] Inter font-medium text-sm"
+            >
               Изменить профиль
-            </Link>
+            </button>
           </div>
         </div>
-
         <button
           onClick={handleLogout}
           className="px-3 py-2 max-h-[38px] rounded-md Inter font-semibold bg-[#393939] text-[#B0B0B0] sm:justify-self-end"
@@ -60,55 +94,51 @@ const ProfileSection = () => {
         </button>
       </div>
 
-      <div className="grid gap-y-6 bg-[#0D0D0D] rounded-xl w-full px-4 lg:px-[75px] py-6">
+      {showModal && (
+        <EditProfileModal
+          currentName={profile.name}
+          onClose={() => setShowModal(false)}
+          onUpdate={updateProfileName}
+        />
+      )}
+
+<div className="grid gap-y-6 bg-[#0D0D0D] rounded-xl w-full px-4 lg:px-[75px] py-6">
         <p className="Inter font-bold text-xl">Мои сцены</p>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          <div className="rounded-lg bg-[#121212] w-full h-full max-h-[240px] p-3 flex items-center flex-col gap-y-4 relative">
-            <span className="px-6 py-2 bg-[#1A1A1A] rounded-lg text-sm text-[#BEBEBE] Inter font-bold absolute top-3 left-3">
-              Смех
-            </span>
-            <Image
-              alt="Profile Scene"
-              width={116}
-              height={116}
-              src="/Face.webp"
-            />
-            <div className="bg-[#191919] text-xs text-[#BEBEBE] p-2 rounded-lg">
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-              eiusmod tempor incididunt ut labore et dolore magna aliqua.
-            </div>
+        {loadingScenes ? (
+          <p className="text-[#BEBEBE]">Загрузка сцен...</p>
+        ) : scenes.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {scenes.map((scene, index) => {
+              const imageUrl = getImageForEmotion(scene.Emotion);
+              return (
+                <div
+                  key={index}
+                  className="rounded-lg bg-[#121212] w-full h-full max-h-[240px] p-3 flex items-center flex-col gap-y-4 relative"
+                >
+                  <span className="px-6 py-2 bg-[#1A1A1A] rounded-lg text-sm text-[#BEBEBE] Inter font-bold absolute top-3 left-3">
+                    {scene.Emotion}
+                  </span>
+                  {imageUrl ? (
+                    <Image
+                      className="mt-6"
+                      alt={`Эмоция: ${scene.Emotion}`}
+                      width={116}
+                      height={116}
+                      src={imageUrl}
+                    />
+                  ) : (
+                    <p className="text-[#BEBEBE] mt-6">Нет изображения</p>
+                  )}
+                  <div className="bg-[#191919] Inter font-bold text-xs text-[#BEBEBE] p-2 rounded-lg">
+                    {scene.Scene}
+                  </div>
+                </div>
+              );
+            })}
           </div>
-          <div className="rounded-lg bg-[#121212] w-full h-full max-h-[240px] p-3 flex items-center flex-col gap-y-4 relative">
-            <span className="px-6 py-2 bg-[#1A1A1A] rounded-lg text-sm text-[#BEBEBE] Inter font-bold absolute top-3 left-3">
-              Смех
-            </span>
-            <Image
-              alt="Profile Scene"
-              width={116}
-              height={116}
-              src="/Face.webp"
-            />
-            <div className="bg-[#191919] text-xs text-[#BEBEBE] p-2 rounded-lg">
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-              eiusmod tempor incididunt ut labore et dolore magna aliqua.
-            </div>
-          </div>
-          <div className="rounded-lg bg-[#121212] w-full h-full max-h-[240px] p-3 flex items-center flex-col gap-y-4 relative">
-            <span className="px-6 py-2 bg-[#1A1A1A] rounded-lg text-sm text-[#BEBEBE] Inter font-bold absolute top-3 left-3">
-              Смех
-            </span>
-            <Image
-              alt="Profile Scene"
-              width={116}
-              height={116}
-              src="/Face.webp"
-            />
-            <div className="bg-[#191919] text-xs text-[#BEBEBE] p-2 rounded-lg">
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-              eiusmod tempor incididunt ut labore et dolore magna aliqua.
-            </div>
-          </div>
-        </div>
+        ) : (
+          <p className="text-[#BEBEBE]">Нет доступных сцен для отображения.</p>
+        )}
       </div>
     </div>
   );

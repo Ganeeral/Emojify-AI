@@ -75,6 +75,33 @@ html {
   background-clip: text;
 }
 
+.gradientTextAnimation {
+  background: linear-gradient(90.00deg, rgb(89, 125, 204), rgb(89, 125, 204), rgb(232, 225, 173), rgb(232, 225, 173));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-size: 400% 400%;
+  background-clip: text;
+   animation: gradientShift 3s infinite linear;
+   transform: translate3d(0, 0, 0);
+}
+
+.animate-gradient {
+  animation: gradientShift 3s infinite linear;
+}
+
+@keyframes gradientShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+
 .gradientTitle {
   background: linear-gradient(11.95deg, rgb(77, 123, 212), rgb(232, 225, 173));
   -webkit-background-clip: text;
